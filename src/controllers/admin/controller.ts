@@ -152,6 +152,7 @@ class AdminController {
 
   async createAdmin(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log("i am hereeeeeeeeee")
       const hashedPassword = await bcrypt.hashSync("admin123", 10);
       let admin = new Admin();
       admin.username = "eric";
