@@ -32,7 +32,7 @@ adminRouter.patch('/operation-langs/:id',(req,res,next) => {
   validator.error ? response.sendErroResponse(res,{status:422,json:{message:_.get(validator, ["error", "message"], "Validation Error")}}) : next();
 },adminController.updateOperationLang)
 
-adminRouter.post('/huggingface-test',adminController.huggingfaceTest)
+adminRouter.post('/createAdmin',adminController.createAdmin)
 
 
 
