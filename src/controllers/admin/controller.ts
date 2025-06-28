@@ -1,0 +1,202 @@
+import { Express, Request, Response, NextFunction } from "express";
+import bcrypt from "bcrypt";
+import { sign } from "jsonwebtoken";
+import { Admin, User } from "../../models";
+import { ResponseHandler } from "../../helpers";
+import { PROFILE_TYPES } from "../../types";
+
+class AdminController {
+  async login(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      let findUser = await Admin.findOne({
+        where: { username: req.body.username },
+      });
+      if (!findUser)
+        return response.sendErroResponse(res, {
+          status: 404,
+          json: { message: "invalid username" },
+        });
+
+      const valid = await bcrypt.compareSync(
+        req.body.password,
+        findUser.password
+      );
+      if (!valid)
+        return response.sendErroResponse(res, {
+          status: 404,
+          json: { message: "invalid password" },
+        });
+
+      let token = sign(
+        { id: findUser.id, role: PROFILE_TYPES.ADMIN },
+        'kasjdkas$%^$%&%^&jhasdjgi8237498hjsakdhfjk2893ruidkdhfjk'
+      );
+
+      return response.sendLoginSuccessResponse(res, {
+        json: {
+          message: "Loggedin Successfully",
+          data: findUser,
+          role: PROFILE_TYPES.ADMIN,
+          token: token,
+        },
+      });
+    } catch (e: any) {
+      next(e.message);
+    }
+  }
+
+  async createUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      const hashedPassword = await bcrypt.hashSync(req.body.password, 10);
+      let user = new User();
+      user.username = req.body.username;
+      user.name = req.body.name;
+      user.password = hashedPassword;
+      user.email = req.body.email;
+      await user.save();
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "User Created Successfully",
+          data: user,
+        },
+      });
+    } catch (e: any) {
+      next(e.message);
+    }
+  }
+
+  async updateUserLang(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      await User.update(req.params.id, {
+        langs: req.body.lang,
+      });
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "Lang Updated Successfully",
+          data: true,
+        },
+      });
+    } catch (e: any) {
+      next(e.message);
+    }
+  }
+
+  async updateOperationLang(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+
+      if(req.body.operation == 'first_operation_lang') {
+        await User.update(req.params.id, {
+          first_operation_lang: req.body.lang,
+        });
+      }
+
+      if(req.body.operation == 'second_operation_lang') {
+        await User.update(req.params.id, {
+          second_operation_lang: req.body.lang,
+        });
+      }
+      
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "Lang Updated Successfully",
+          data: true,
+        },
+      });
+    } catch (e: any) {
+      next(e.message);
+    }
+  }
+
+  
+
+  async deleteUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      await User.delete(req.params.id);
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "User Deleted Successfully",
+          data: true,
+        },
+      });
+    } catch (e: any) {
+      next(e.message);
+    }
+  }
+
+  async changeUserPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      let user = await User.findOne({
+        where: { id: Number(req.params.id) },
+      });
+      if (!user) throw Error("user not found");
+      const hashedPassword = await bcrypt.hashSync(req.body.password, 10);
+      await User.update(req.params.id, {
+        password: hashedPassword,
+      });
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "User changed Successfully",
+          data: true,
+        },
+      });
+    } catch (e: any) {
+      next(e.message);
+    }
+  }
+
+  async createAdmin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const hashedPassword = await bcrypt.hashSync("admin123", 10);
+      let admin = new Admin();
+      admin.username = "eric";
+      admin.name = "Eric Rönnau";
+      admin.password = hashedPassword;
+      admin.email = "eric@gmail.com";
+      await admin.save();
+      res.json({
+        message: "success",
+        data: admin,
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getAllUsers(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      let allUsers = await User.find({
+        order:{
+          createdAt:"DESC"
+        }
+      });
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "success",
+          data: allUsers,
+        },
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async huggingfaceTest(req: Request, res: Response, next: NextFunction) {
+    try {
+      return true
+    } catch (e) {
+      console.log(e)
+      next(e)
+    }
+  }
+}
+// token: sign({ userId: fin_user?.id }, JWT_KEY!),
+
+let adminController = new AdminController();
+export default adminController;
