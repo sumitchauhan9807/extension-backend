@@ -2,7 +2,7 @@
 import express, { Express, NextFunction,Request,Response,ErrorRequestHandler} from "express";
 import dotenv from "dotenv";
 import { DataSource } from "typeorm"
-import {User,Admin} from './models'
+import {User,Admin,Chat} from './models'
 const cors = require('cors')
 
 import {initWebRoutes,initUserRoutes,initAdminRoutes} from './routes'
@@ -37,7 +37,7 @@ const AppDataSource = new DataSource({
   username: 'postgres',
   password: 'pop130982',
   database: 'extensionbackend',
-  entities: [User,Admin],
+  entities: [User,Admin,Chat],
   synchronize: true,
   logging: false,
 })

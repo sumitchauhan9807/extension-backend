@@ -12,6 +12,16 @@ const createUserValidator = Joi.object({
   email: Joi.string().email().required(),
 });
 
+const createChatValidator = Joi.object({
+  name: Joi.string().required(),
+  prompt: Joi.string().required(),
+});
+
+const assignChatValidator = Joi.object({
+  userId: Joi.number().required(),
+  chatId: Joi.number().required(),
+});
+
 const changePassword = Joi.object({
   password: Joi.string().required(),
 });
@@ -25,4 +35,4 @@ const updateOperationLang = Joi.object({
   operation: Joi.string().required(),
 });
 
-export { loginValidator, createUserValidator, changePassword ,updateUserLang ,updateOperationLang };
+export { loginValidator, createUserValidator, changePassword ,updateUserLang ,updateOperationLang ,createChatValidator ,assignChatValidator };

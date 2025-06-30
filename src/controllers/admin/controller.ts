@@ -1,9 +1,10 @@
 import { Express, Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
-import { Admin, User } from "../../models";
+import { Admin, Chat, User } from "../../models";
 import { ResponseHandler } from "../../helpers";
 import { PROFILE_TYPES } from "../../types";
+import userOnboarding from "../user/onboardingRouter";
 
 class AdminController {
   async login(req: Request, res: Response, next: NextFunction) {
@@ -30,7 +31,7 @@ class AdminController {
 
       let token = sign(
         { id: findUser.id, role: PROFILE_TYPES.ADMIN },
-        'kasjdkas$%^$%&%^&jhasdjgi8237498hjsakdhfjk2893ruidkdhfjk'
+        "kasjdkas$%^$%&%^&jhasdjgi8237498hjsakdhfjk2893ruidkdhfjk"
       );
 
       return response.sendLoginSuccessResponse(res, {
@@ -88,18 +89,18 @@ class AdminController {
     try {
       let response = new ResponseHandler();
 
-      if(req.body.operation == 'first_operation_lang') {
+      if (req.body.operation == "first_operation_lang") {
         await User.update(req.params.id, {
           first_operation_lang: req.body.lang,
         });
       }
 
-      if(req.body.operation == 'second_operation_lang') {
+      if (req.body.operation == "second_operation_lang") {
         await User.update(req.params.id, {
           second_operation_lang: req.body.lang,
         });
       }
-      
+
       return response.sendSuccessResponse(res, {
         json: {
           message: "Lang Updated Successfully",
@@ -110,8 +111,6 @@ class AdminController {
       next(e.message);
     }
   }
-
-  
 
   async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
@@ -152,7 +151,7 @@ class AdminController {
 
   async createAdmin(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("i am hereeeeeeeeee")
+      console.log("i am hereeeeeeeeee");
       const hashedPassword = await bcrypt.hashSync("admin123", 10);
       let admin = new Admin();
       admin.username = "eric";
@@ -173,9 +172,9 @@ class AdminController {
     try {
       let response = new ResponseHandler();
       let allUsers = await User.find({
-        order:{
-          createdAt:"DESC"
-        }
+        order: {
+          createdAt: "DESC",
+        },
       });
       return response.sendSuccessResponse(res, {
         json: {
@@ -188,12 +187,57 @@ class AdminController {
     }
   }
 
+  async createChat(req: Request, res: Response, next: NextFunction) {
+    try {
+      let chat = new Chat();
+      chat.name = req.body.name
+      chat.prompt = req.body.prompt
+      await chat.save();
+      res.json({
+        message: "success",
+        data: chat,
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async assignChat(req: Request, res: Response, next: NextFunction) {
+    try {
+      
+      let findUser = await User.findOne({
+        relations:['chats'],
+        where :{ id:req.body.userId}
+      });
+      if (!findUser) throw Error("user not found");
+
+      let findChat = await Chat.findOne({
+        where :{ id:req.body.chatId}
+      });
+      
+      if (!findChat) throw Error("chat not found");
+
+      if(findUser.chats.length == 0){ 
+        findUser.chats = [findChat]
+      }else {
+        findUser.chats.push(findChat)
+      }
+
+      await findUser.save()
+      res.json({
+        message: "success",
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async huggingfaceTest(req: Request, res: Response, next: NextFunction) {
     try {
-      return true
+      return true;
     } catch (e) {
-      console.log(e)
-      next(e)
+      console.log(e);
+      next(e);
     }
   }
 }

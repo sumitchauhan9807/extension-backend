@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn ,UpdateDateColumn, BaseEntity } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn ,UpdateDateColumn, BaseEntity, ManyToMany, JoinTable } from "typeorm"
+import {Chat} from './Chat'
 
 @Entity()
 export class User extends BaseEntity {
@@ -22,6 +23,10 @@ export class User extends BaseEntity {
 
     @Column()
     password: string
+
+    @ManyToMany(() => Chat)
+    @JoinTable()
+    chats: Chat[]
 
 		@Column({default:"de"})
     langs: string
