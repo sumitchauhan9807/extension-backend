@@ -187,6 +187,27 @@ class AdminController {
     }
   }
 
+  async getAllChats(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      let allChats = await Chat.find({
+        order: {
+          createdAt: "DESC",
+        },
+      });
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "success",
+          data: allChats,
+        },
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  
+
   async createChat(req: Request, res: Response, next: NextFunction) {
     try {
       let chat = new Chat();

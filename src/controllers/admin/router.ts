@@ -20,6 +20,8 @@ adminRouter.patch("/user-password/:id",(req,res,next) => {
 
 
 adminRouter.get('/users',adminController.getAllUsers)
+adminRouter.get('/chats',adminController.getAllChats)
+
 adminRouter.patch('/lang/:id',(req,res,next) => {
   let response = new ResponseHandler()
   const validator = updateUserLang.validate(req.body, { errors: { wrap: { label: '' } } });
