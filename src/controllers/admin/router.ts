@@ -21,6 +21,8 @@ adminRouter.patch("/user-password/:id",(req,res,next) => {
 
 adminRouter.get('/users',adminController.getAllUsers)
 adminRouter.get('/chats',adminController.getAllChats)
+adminRouter.get('/chat/:id',adminController.getChatById)
+
 
 adminRouter.patch('/lang/:id',(req,res,next) => {
   let response = new ResponseHandler()
@@ -39,6 +41,12 @@ adminRouter.post("/create-chat", (req,res,next) => {
   const validator = createChatValidator.validate(req.body, { errors: { wrap: { label: '' } } });
   validator.error ? response.sendErroResponse(res,{status:422,json:{message:_.get(validator, ["error", "message"], "Validation Error")}}) : next();
 },adminController.createChat);
+
+adminRouter.post("/update-chat/:id", (req,res,next) => {
+  let response = new ResponseHandler()
+  const validator = createChatValidator.validate(req.body, { errors: { wrap: { label: '' } } });
+  validator.error ? response.sendErroResponse(res,{status:422,json:{message:_.get(validator, ["error", "message"], "Validation Error")}}) : next();
+},adminController.updateChat);
 
 adminRouter.post("/assign-chat", (req,res,next) => {
   let response = new ResponseHandler()

@@ -206,6 +206,44 @@ class AdminController {
     }
   }
 
+  async getChatById(req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = new ResponseHandler();
+      let chat = await Chat.findOne({
+        where:{id:Number(req.params.id)}
+      });
+      return response.sendSuccessResponse(res, {
+        json: {
+          message: "success",
+          data: chat,
+        },
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateChat(req: Request, res: Response, next: NextFunction) {
+    try {
+      
+      let chat = await Chat.findOne({
+        where:{id:Number(req.params.id)}
+      });
+      if (!chat) throw Error("chat not found");
+
+      await Chat.update(req.params.id,{
+        name:req.body.name,
+        prompt:req.body.prompt
+      })
+      
+      res.json({
+        message: "success",
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   
 
   async createChat(req: Request, res: Response, next: NextFunction) {
