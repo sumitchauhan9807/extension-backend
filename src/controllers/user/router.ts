@@ -3,6 +3,7 @@ import { Router } from "express";
 const _ = require('lodash');
 
 const apiRouter = Router();
+import  {getUserChats}  from "./controller";
 
 // apiRouter.post("/", (req,res,next) => {
 //   console.log("heree")
@@ -13,5 +14,5 @@ const apiRouter = Router();
 // apiRouter.get("/",test1)
 // apiRouter.get("/",streamTest)
 
-
+apiRouter.get('/chats',getUserChats)
 export default apiRouter;

@@ -33,6 +33,20 @@ const login = async (req:Request,res:Response,next:NextFunction) => {
   }
 }
 
+
+const getUserChats = async (req:Request,res:Response,next:NextFunction) => {
+  try {
+    let userData = await User.findOne({
+      relations:["chats"],
+      where:{id:req.userContext?.id}
+    })
+    res.json(userData)
+  }catch(e:any) {
+    next(e.message)
+  }
+}
+
 export  {
-  login
+  login,
+  getUserChats
 }
