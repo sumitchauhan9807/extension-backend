@@ -172,6 +172,7 @@ class AdminController {
     try {
       let response = new ResponseHandler();
       let allUsers = await User.find({
+        relations:['chats'],
         order: {
           createdAt: "DESC",
         },
