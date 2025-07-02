@@ -19,9 +19,8 @@ const createChatValidator = Joi.object({
 
 const assignChatValidator = Joi.object({
   userId: Joi.number().required(),
-  chatId: Joi.number().required(),
+  chatId: Joi.array().items(Joi.number())
 });
-
 const changePassword = Joi.object({
   password: Joi.string().required(),
 });

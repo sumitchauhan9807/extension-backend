@@ -5,6 +5,7 @@ import { Admin, Chat, User } from "../../models";
 import { ResponseHandler } from "../../helpers";
 import { PROFILE_TYPES } from "../../types";
 import userOnboarding from "../user/onboardingRouter";
+import { In } from "typeorm";
 
 class AdminController {
   async login(req: Request, res: Response, next: NextFunction) {
@@ -271,18 +272,14 @@ class AdminController {
       });
       if (!findUser) throw Error("user not found");
 
-      let findChat = await Chat.findOne({
-        where :{ id:req.body.chatId}
+      let findChat = await Chat.find({
+        where :{ id: In(req.body.chatId)}
       });
       
       if (!findChat) throw Error("chat not found");
 
-      if(findUser.chats.length == 0){ 
-        findUser.chats = [findChat]
-      }else {
-        findUser.chats.push(findChat)
-      }
-
+      findUser.chats = findChat
+      
       await findUser.save()
       res.json({
         message: "success",
