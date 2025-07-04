@@ -1,9 +1,9 @@
 import { Router } from "express";
 
 const _ = require('lodash');
-
+const fileUpload = require('express-fileupload');
 const apiRouter = Router();
-import  {getUserChats}  from "./controller";
+import  {getUserChats, tess}  from "./controller";
 
 // apiRouter.post("/", (req,res,next) => {
 //   console.log("heree")
@@ -15,4 +15,6 @@ import  {getUserChats}  from "./controller";
 // apiRouter.get("/",streamTest)
 
 apiRouter.get('/chats',getUserChats)
+apiRouter.post('/tess',fileUpload(),tess)
+
 export default apiRouter;
