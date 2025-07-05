@@ -22,6 +22,7 @@ app.use((req, res, next) => {
 
 
 
+app.use("/assets", express.static("src/assets"));
 
 
 

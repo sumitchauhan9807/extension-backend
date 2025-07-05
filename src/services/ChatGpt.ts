@@ -14,7 +14,24 @@ export class ChatGpt {
         await this.openAI.beta.chat.completions.stream(
           {
             messages: [{ role: "user", content: question }],
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
+            stream: true,
+          },
+          { responseType: "stream" }
+        );
+      return chatCompletionStream;
+    } catch (e: any) {
+      throw Error(e);
+    }
+  }
+
+  async getAnswer2(question: object) {
+    try {
+      const chatCompletionStream =
+        await this.openAI.beta.chat.completions.stream(
+          {
+            messages: [{ role: "user", content: question }],
+            model: "gpt-4o",
             stream: true,
           },
           { responseType: "stream" }
@@ -25,6 +42,9 @@ export class ChatGpt {
     }
   }
 }
+
+
+
 // Rephrase this text concisely in casual, flirty, fluent, and colloquial ${lang} in a younger tone. The message should not use any honorific form of addressing such as Sie. Include emojis where relevant. If the text contains terms of endearment, please use only schatz in the german text. Please do not use any word relevant to 'Verbindung'. Use gender neutral messages.
 export const PRE_TEXTS = {
   TRANSLATE: "Translate this into",

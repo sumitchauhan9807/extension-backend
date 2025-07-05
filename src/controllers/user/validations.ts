@@ -6,4 +6,8 @@ const loginValidator = Joi.object({
   password: Joi.string().required(),
 });
 
-export { loginValidator };
+const getTeamReplyValidator = Joi.object({
+  chatId: Joi.number().required(),
+});
+
+export { loginValidator ,getTeamReplyValidator };
