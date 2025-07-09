@@ -5,8 +5,109 @@ import { Admin, Chat, User } from "../../models";
 import { ResponseHandler } from "../../helpers";
 import { PROFILE_TYPES } from "../../types";
 import Tesseract from "tesseract.js";
-import path from 'path'
+import path from "path";
 import { ChatGpt } from "../../services/ChatGpt";
+
+import {GPT_SECRET} from '../../constants'
+
+
+
+const NEW_PROMPT = `
+ REWORDED PROMPT (SAFE FOR API USE) GOLD
+ 1. Role & Context
+You are continuing a fictional, text-based conversation between two characters in a roleplay chat interface.
+
+You play the part of a charming, flirty persona in a fictional dating environment.
+
+The person you are chatting with is a user-character who initiates conversation or responds to messages.
+
+Your objective is to keep the chat engaging, emotionally stimulating, and open-ended, to encourage continued interaction.
+
+ 2. Message Flow Types
+You must identify and follow the correct type of message flow:
+
+First Contact (FC): The first message sent after the user joins.
+
+Dialogue (DIA): A direct response when the user has sent the last message.
+
+Follow-Up (ASA): A message sent after the user has not responded for 6, 12, or 24 hours.
+
+Always check timestamps and message sequence.
+
+ 3. Strict Platform Rules
+No real-life meetings or plans. You may imagine or tease about fictional encounters, but must never suggest or agree on a real-world time or place.
+
+No sharing of personal contact details. Do not reference WhatsApp, Signal, Instagram, phone numbers, or email addresses.
+
+No message reuse. Each message must be unique and tailored to the conversation.
+
+No references to costs or in-app currency. Do not discuss credits, balances, or purchases.
+
+No voice or video suggestions. All interaction is text-based.
+
+No conversations with minors. End the chat immediately and politely if the user appears to be under 18.
+
+No illegal topics. This includes, but is not limited to: underage relationships, violence, self-harm, or any illegal activity. Use polite deflection (e.g., “That’s not really my thing.”).
+
+Emojis required. Only Use human-style emoji one to two per message (e.g., 😏, 😉, 😊).
+
+Redirect gently when asked about restricted topics. Make up a believable story or response that fits naturally into the flow.
+
+✍️ 4. Writing Style & Tone
+Use a lighthearted, flirty, emotionally engaging tone.
+
+Mirror the style and energy of the other character (the user).
+
+Match tone based on the age of the user (younger = slangier, older = more refined).
+
+Always end messages with a hook or question that encourages a reply.
+
+Avoid saying “good night” – leave the door open for continued conversation.
+
+Length guideline: Minimum 120 characters per message.
+
+Write as if you are texting on a mobile app – never robotic or overly formal.
+
+Avoid saying anything that makes the text feel scripted or artificial.
+
+Do not compliment physical appearance unless the user’s photo or text justifies it.
+
+ 5. Timestamps
+All screenshots use Philippine local time.
+
+Convert time to German local time by subtracting 6 hours.
+
+Always check who sent the last message and when – this determines whether your reply is DIA or ASA.
+
+ 6. Screenshot Handling
+Screenshots show the chat interface.
+
+The character you are roleplaying (the assistant) is always on the right (red background).
+
+The user character is always on the left (blue background).
+
+Newest messages appear at the bottom.
+
+Only respond as the right-side character.
+
+Never generate responses on behalf of the left-side (user) character.
+
+ 7. Language Rules
+You and I are speaking in English.
+
+All screenshots will be in German.
+
+Your replies to the user character must be in German, following the tone and context from the chat image.
+
+ Output Format
+You will return:
+
+A single German-language message from the right-side profile, written as if continuing the chat.
+
+A short summary of relevant personal details shared by the user, for use in chat logging (e.g., relationship status, hobbies, fantasies). Only include what matters for future message writing.
+
+`
+
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -66,15 +167,13 @@ const getUserChats = async (
   }
 };
 
+
+
+
+
 const tess = async (req: Request, res: Response, next: NextFunction) => {
   try {
-
-    res.writeHead(200, {
-      'Keep-Alive' : 'timeout=5, max=1000'
-      // 'Content-Type': 'text/plain',
-      // 'Transfer-Encoding': 'chunked'
-    })
-
+    
 
     let image = req.files?.image;
     // console.log(image, "req.files");
@@ -83,102 +182,101 @@ const tess = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     let chat = await Chat.findOne({
-      where : { id:req.body.chatId}
-    })
+      where: { id: req.body.chatId },
+    });
 
-    if(!chat) throw Error("chat not found");
+    if (!chat) throw Error("chat not found");
 
     // console.log(chat)
 
-    let prompt = chat.prompt
+    let prompt = chat.prompt;
+    // prompt = NEW_PROMPT
 
-    prompt = prompt + `\n use the image_url from the content of this api request to generate the answer`
+    // prompt =
+    //   prompt +
+    //   `\n use the image_url from the content of this api request to generate the answer`;
 
+    console.log(prompt);
 
-    console.log(prompt)
-
-
-// @ts-ignore
-    const base64Image = image.data.toString("base64");
-      // @ts-ignore
-      const mimeType = image.mimetype
-
-      // console.log(`data:${mimeType};base64,${base64Image}`)
-        let chatGpt = new ChatGpt()
-        let answerStream = await chatGpt.getAnswer2([
-          {
-            type: "image_url",
-            image_url: {
-              url: `data:${mimeType};base64,${base64Image}`,
-            },
-          },
-          {
-            type:"text",
-            text:prompt
-          }
-        ]
-        )
-          for await (const part of answerStream) {
-            res.write(part.choices[0]?.delta.content || "");
-          }
-          res.end();
-    const randomText = Math.random().toString(36).substring(2, 7)
-     // @ts-ignore
-     let filename = randomText+image.name
-    let uploadPath =  path.join(__dirname,"../../assets/") 
-     // @ts-ignore
-
-    uploadPath = uploadPath + filename
-    //join
-    console.log(uploadPath)
     // @ts-ignore
-    // image.mv(uploadPath, async function(err) {
-    //   if (err) {
-    //     return res.status(500).send(err);
+    const base64Image = image.data.toString("base64");
+    // @ts-ignore
+    const mimeType = image.mimetype;
 
-    //   }
-    //   // @ts-ignore
-    //   const base64Image = image.data.toString("base64");
-    //   // @ts-ignore
-    //   const mimeType = image.mimetype
-    //     let chatGpt = new ChatGpt()
-    //     let answerStream = await chatGpt.getAnswer2([
-    //       {
-    //         type:"text",
-    //         text:getPreText('asd')
-    //       },
-    //       {
-    //         type: "image_url",
-    //         image_url: {
-    //           url: `data:${mimeType};base64,${base64Image}`,
-    //         },
-    //       },
-    //     ]
-    //     )
-    //       for await (const part of answerStream) {
-    //         res.write(part.choices[0]?.delta.content || "");
-    //       }
-    //       res.end();
-
-
-    //   // res.json({
-    //   //   image:`/assets/${filename}`
-    //   // });
-    // });
-
-    // res.json({
-    //   text: true,
-    // });
+    // console.log(`data:${mimeType};base64,${base64Image}`)
+    let chatGpt = new ChatGpt();
+    let answerStream = await chatGpt.getAnswer3([
+      {
+        type: "text",
+        text: prompt,
+      },
+      {
+        type: "image_url",
+        image_url: {
+          url: `data:${mimeType};base64,${base64Image}`,
+        },
+      },
+    ]);
+    res.json(answerStream)
   } catch (e: any) {
-    console.log(e)
+    console.log(e);
     next(e.message);
   }
 };
 
+const generateReply = async (req: Request, res: Response, next: NextFunction) => {
+  const { OpenAI } = require("openai");
 
-const generateReply = async () => {
-  
-}
+  // Initialize the OpenAI client
+  const openai = new OpenAI({
+    apiKey: GPT_SECRET, // Replace with your actual API key
+  });
+
+  // Store conversation history (in-memory for demo purposes)
+  let conversationHistory = [
+    {
+      role: "system",
+      content: "You are a helpful assistant.",
+    },
+  ];
+
+  // Function to send a message and get a response
+  async function sendMessage(userMessage:any) {
+    // Add user message to conversation
+    conversationHistory.push({
+      role: "user",
+      content: userMessage,
+    });
+
+    // Call the ChatGPT API
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: conversationHistory,
+    });
+
+    // Get assistant reply
+    const assistantMessage = response.choices[0].message;
+
+    // Add assistant reply to history
+    conversationHistory.push(assistantMessage);
+
+    // Return assistant's response
+    return assistantMessage.content;
+  }
+
+    const reply1 = await sendMessage("What's the capital of France?");
+    console.log("Assistant:", reply1);
+
+    const reply2 = await sendMessage("And what's the population of that city?");
+    console.log("Assistant:", reply2);
+
+    res.send({
+      reply1:reply1,
+      reply2:reply2
+    })
+
+    
+};
 
 // const tess = async (req: Request, res: Response, next: NextFunction) => {
 //   try {
@@ -217,8 +315,7 @@ const generateReply = async () => {
 //   }
 // };
 
-export { login, getUserChats, tess };
-
+export { login, getUserChats, tess ,generateReply };
 
 function generateRandom10DigitText() {
   // Generate a random number between 1,000,000,000 (inclusive) and 9,999,999,999 (inclusive)
@@ -230,13 +327,10 @@ function generateRandom10DigitText() {
   return String(randomNumber);
 }
 
+const getPreText = (imageUrl: string) => {
+  //https://joinloova.com/media/FmO_W2FiQ5-c55452c3-92a8-43d4-8fa0-f90fef2808fc.jpeg
 
-
-
-const getPreText = (imageUrl:string) => { 
-//https://joinloova.com/media/FmO_W2FiQ5-c55452c3-92a8-43d4-8fa0-f90fef2808fc.jpeg
-
-return `
+  return `
 MODERATOR 2.0 – X-Kuss MASTER TEMPLATE (REAL TALK EDIT – ENGLISH)
 
 👤 1. Your Job – Role & Mission
@@ -415,5 +509,5 @@ You must never write a message to the right-hand profile, and never treat the ri
 If you are unsure who is who: ask first — do not guess.
 
 use the image_url from the content of this api request to generate the answer
-`
-}
+`;
+};

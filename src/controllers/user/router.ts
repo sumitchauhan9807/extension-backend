@@ -3,7 +3,7 @@ import { Router } from "express";
 const _ = require('lodash');
 const fileUpload = require('express-fileupload');
 const apiRouter = Router();
-import  {getUserChats, tess}  from "./controller";
+import  {generateReply, getUserChats, tess}  from "./controller";
 import { loginValidator , getTeamReplyValidator } from "./validations";
 
 // apiRouter.post("/", (req,res,next) => {
@@ -16,6 +16,8 @@ import { loginValidator , getTeamReplyValidator } from "./validations";
 // apiRouter.get("/",streamTest)
 
 apiRouter.get('/chats',getUserChats)
+apiRouter.get('/generateReply',generateReply)
+
 apiRouter.post('/tess',fileUpload(),(req,res,next) => {
   const validator = getTeamReplyValidator.validate(req.body, { errors: { wrap: { label: '' } } });
   validator.error ? res.status(400).json({ message: _.get(validator, ["error", "message"], "Validation Error"), status: 0 }) : next();
