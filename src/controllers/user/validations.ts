@@ -8,6 +8,7 @@ const loginValidator = Joi.object({
 
 const getTeamReplyValidator = Joi.object({
   chatId: Joi.number().required(),
+  retryText:Joi.string().optional()
 });
 
 export { loginValidator ,getTeamReplyValidator };

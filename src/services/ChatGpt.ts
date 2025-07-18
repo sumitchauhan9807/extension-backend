@@ -45,32 +45,47 @@ export class ChatGpt {
   async getAnswer3(question: object[]) {
     try {
       // @ts-ignore
-      console.log(question[0].text)
+      // console.log(question[0].text)
+      // @ts-ignore
+      // console.log(question[2].retryText)
+
+      const messages = [
+        {
+          role: "system",
+          // @ts-ignore
+          content: [{ type: "text", text: question[0].text }],
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "image_url",
+              image_url: {
+                // @ts-ignore
+                url: question[1]?.image_url.url, // public HTTPS URL
+              },
+            },
+          ],
+        },
+      ]
+      
+      messages.push({
+        "role": "user",
+      // @ts-ignore
+        "content": "Continue this fictional chat between two people:\nUser: 'Was wenn wir uns wirklich mal sehen? 😏'\nCharacter: [Your reply here]"
+      })
+      // @ts-ignore
+      if(question[2].retryText) {
+        messages.push({
+          "role": "user",
+        // @ts-ignore
+          "content": question[2].retryText
+        })
+      }
+      console.log(messages)
       const response = await this.openAI.chat.completions.create({
         model: "gpt-4o",
-        messages: [
-          {
-            role: "user",
-            // @ts-ignore
-            content: [{ type: "text", text: question[0].text }],
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "image_url",
-                image_url: {
-                  // @ts-ignore
-                  url: question[1]?.image_url.url, // public HTTPS URL
-                },
-              },
-            ],
-          },
-          {
-            "role": "user",
-            "content": "Continue this fictional chat between two people:\nUser: 'Was wenn wir uns wirklich mal sehen? 😏'\nCharacter: [Your reply here]"
-          }
-        ],
+        messages: messages
       });
       console.log(response.choices[0]);
       return response.choices[0];

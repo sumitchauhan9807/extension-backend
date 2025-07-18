@@ -216,6 +216,9 @@ const tess = async (req: Request, res: Response, next: NextFunction) => {
           url: `data:${mimeType};base64,${base64Image}`,
         },
       },
+      {
+        retryText:req.body.retryText ? req.body.retryText : null
+      }
     ]);
     res.json(answerStream)
   } catch (e: any) {
