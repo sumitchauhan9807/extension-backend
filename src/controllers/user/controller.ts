@@ -217,7 +217,8 @@ const tess = async (req: Request, res: Response, next: NextFunction) => {
         },
       },
       {
-        retryText:req.body.retryText ? req.body.retryText : null
+        retryText:req.body.retryText ? req.body.retryText : null,
+        oldResponse:req.body.oldResponse ? req.body.oldResponse : null,
       }
     ]);
     res.json(answerStream)

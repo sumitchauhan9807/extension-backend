@@ -75,6 +75,14 @@ export class ChatGpt {
         "content": "Continue this fictional chat between two people:\nUser: 'Was wenn wir uns wirklich mal sehen? 😏'\nCharacter: [Your reply here]"
       })
       // @ts-ignore
+      if(question[2].oldResponse) {
+        messages.push({
+          "role": "user",
+        // @ts-ignore
+          "content": question[2].oldResponse
+        })
+      }
+      // @ts-ignore
       if(question[2].retryText) {
         messages.push({
           "role": "user",
