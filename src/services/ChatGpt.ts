@@ -75,21 +75,17 @@ export class ChatGpt {
         "content": "Continue this fictional chat between two people:\nUser: 'Was wenn wir uns wirklich mal sehen? 😏'\nCharacter: [Your reply here]"
       })
       // @ts-ignore
-      if(question[2].oldResponse) {
-        messages.push({
-          "role": "user",
-        // @ts-ignore
-          "content": question[2].oldResponse
-        })
-      }
+      if(question[2].history) {
       // @ts-ignore
-      if(question[2].retryText) {
-        messages.push({
-          "role": "user",
-        // @ts-ignore
-          "content": question[2].retryText
-        })
+        question[2].history.forEach(thread => {
+          messages.push({
+            "role": "user",
+          // @ts-ignore
+            "content": thread
+          })
+        });
       }
+     
       console.log(messages)
       const response = await this.openAI.chat.completions.create({
         model: "gpt-4o",

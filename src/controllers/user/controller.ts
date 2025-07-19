@@ -174,7 +174,7 @@ const getUserChats = async (
 const tess = async (req: Request, res: Response, next: NextFunction) => {
   try {
     
-
+    // console.log(req.body['history[]'],"historyhistoryhistoryhistoryhistory")
     let image = req.files?.image;
     // console.log(image, "req.files");
     if (!image) {
@@ -196,7 +196,7 @@ const tess = async (req: Request, res: Response, next: NextFunction) => {
     //   prompt +
     //   `\n use the image_url from the content of this api request to generate the answer`;
 
-    console.log(prompt);
+    // console.log(prompt);
 
     // @ts-ignore
     const base64Image = image.data.toString("base64");
@@ -217,8 +217,7 @@ const tess = async (req: Request, res: Response, next: NextFunction) => {
         },
       },
       {
-        retryText:req.body.retryText ? req.body.retryText : null,
-        oldResponse:req.body.oldResponse ? req.body.oldResponse : null,
+        history:req.body['history[]'] ? req.body['history[]'] : null,
       }
     ]);
     res.json(answerStream)
